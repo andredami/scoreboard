@@ -1,0 +1,27 @@
+.my-table
+{
+	display:table;
+	border-collapse:separate;
+	border-spacing:2px;
+}
+.my-thead
+{
+	display:table-header-group;
+	color:white;
+	font-weight:bold;
+	background-color: darkcyan;
+}
+.my-tbody
+{
+	display:table-row-group;
+}
+.my-tr
+{
+	display:table-row;
+}
+.my-td
+{
+	display:table-cell;
+	border:1px solid gray;
+	padding:1px;
+}

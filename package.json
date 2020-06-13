@@ -1,0 +1,24 @@
+{
+  "name": "scoreboard",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "debug": "DEBUG=scoreboard:* node --nolazy --inspect-brk=9229 ./bin/www"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "express-fileupload": "^1.1.6",
+    "http-errors": "~1.6.3",
+    "morgan": "~1.9.1",
+    "node-xlsx": "^0.15.0",
+    "pug": "^2.0.4",
+    "sqlite3": "^4.1.1",
+    "ws": "^7.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}

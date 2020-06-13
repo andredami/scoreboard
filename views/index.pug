@@ -1,0 +1,168 @@
+extends layout
+
+block content
+  div.container-fluid
+    if editable
+      h1 Gestione Gare
+      if (rows || []).length > 0
+        a.btn.btn-secondary.mx-1(href="/export")                                    Esporta tutta la griglia
+        button.btn.btn-danger.mx-1(data-toggle="modal" data-target="#clearModal")   Pulisci griglia
+      else
+        form#upload(action="/upload" method="post" enctype='multipart/form-data')
+          div.input-group.mb-3
+            div.input-group-prepend
+              button.btn.btn-primary#sendFiles(disabled type="submit") Carica file selezionato
+            div.custom-file
+              input.custom-file-input#fileInput(aria-describedby="inputGroupFileAddon01" type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" name="file")
+              label.custom-file-label(for="fileInput") Seleziona un file
+    else
+      h1 Gare
+  
+    div.my-table.table
+      div.my-thead
+        div.my-tr
+          div.my-td A
+          div.my-td #
+          div.my-td Partecipante 1
+          div.my-td Partecipante 2
+          div.my-td Partecipante 3
+          div.my-td Risultato 1
+          div.my-td Risultato 2
+          div.my-td Risultato 3
+          div.my-td Azioni
+      div.my-tbody
+        each row in rows
+          form.my-tr(class=row.active ? 'table-success' : '' action="/row-edit" method="post")
+            div.my-td
+              if editable
+                unless row.active
+                  button.btn.btn-success(type="submit" formaction="/row-activate")
+                    i.fas.fa-running
+            div.my-td
+              span= row.place
+              input(type="text"   name="place"        value=row.place       hidden)
+            div.my-td
+              if editable
+                input(type="text" name="competitor1"  value=row.competitor1 readonly)
+              else
+                p #{row.competitor1}
+            div.my-td
+              if editable
+                input(type="text" name="competitor2"  value=row.competitor2 readonly)
+              else
+                p #{row.competitor2}
+            div.my-td
+              if editable
+                input(type="text" name="competitor3"  value=row.competitor3 readonly)
+              else
+                p #{row.competitor3}
+            div.my-td
+              if editable
+                input(type="text" name="result1"      value=row.result1     readonly)
+              else
+                p #{row.result1}
+            div.my-td
+              if editable
+                input(type="text" name="result2"      value=row.result2     readonly)
+              else
+                p #{row.result2}
+            div.my-td
+              if editable
+                input(type="text" name="result3"      value=row.result3     readonly)
+              else
+                p #{row.result3}
+            div.my-td
+              if editable
+                unless (row.place == 0)
+                  button.btn.btn-light(type="submit" formaction="/row-up")
+                    i.fas.fa-arrow-up
+                button.btn.btn-light.my-edit(type="button")
+                  i.fas.fa-edit
+                button.btn.btn-light.my-confirm(type="submit" hidden)
+                  i.fas.fa-check-square
+                unless (row.place == Math.max.apply(null, rows.map((e) => e.place)))
+                  button.btn.btn-light(type="submit" formaction="/row-down")
+                    i.fas.fa-arrow-down
+      if editable
+        form.my-tr(action="/row-add" method="post")
+          div.my-td
+          div.my-td
+          div.my-td
+            input(type="text" name="competitor1")
+          div.my-td
+            input(type="text" name="competitor2")
+          div.my-td
+            input(type="text" name="competitor3")
+          div.my-td
+            input(type="text" name="result1"    )
+          div.my-td
+            input(type="text" name="result2"    )
+          div.my-td
+            input(type="text" name="result3"    )
+          div.my-td
+            button.btn.btn-light(type="submit")
+              i.fas.fa-plus-circle
+
+  div.modal.fade#clearModal(tabindex="-1" role="danger" aria-labelledby="clearModalLabel" aria-hidden="true") 
+    div.modal-dialog(role="document")
+      div.modal-content
+        div.modal-header
+          h5.modal-title#clearModalLabel  Pulisci Griglia
+          button.close(type="button" data-dismiss="modal" aria-label="Chiudi")
+            span(aria-hidden="true") &times;
+        div.modal-body
+          p ATTENZIONE! Confermando eliminerai tutti i dati della griglia.
+          p L'operazione è IRREVERSIBILE.
+        div.modal-footer
+          button.btn.btn-seconday(data-dismiss="modal") Chiudi
+          a.btn.btn-danger#clear(href="/clear") Cancella tutto!
+
+  script.
+    $('form button.my-edit').on('click', function() {
+      currentElement$ = $(this);
+      formElement$    = currentElement$.parents('form').first();
+      formElement$.find('input[readonly]').removeAttr('readonly');
+      formElement$.addClass('table-warning');
+      currentElement$.prop('hidden', true);
+      $('button').prop('disabled', true);
+      formElement$.find('button.my-confirm').prop('hidden', false);
+      formElement$.find('button.my-confirm').prop('disabled', false);
+    })
+  
+  script.
+    $('form button.my-edit').on('click', function() {
+      currentElement$ = $(this);
+      formElement$    = currentElement$.parents('form').first();
+      formElement$.find('input[readonly]').removeAttr('readonly');
+      formElement$.addClass('table-warning');
+      currentElement$.prop('hidden', true);
+      $('button').prop('disabled', true);
+      formElement$.find('button.my-confirm').prop('hidden', false);
+      formElement$.find('button.my-confirm').prop('disabled', false);
+    })
+  
+  script.
+    $('#fileInput').on('change',function(e){
+        var fileName = e.target.files[0].name;
+        $(this).next('.custom-file-label').html(fileName);
+        document.getElementById('sendFiles').disabled = !document.getElementById('fileInput').files.length
+    })
+  
+  if !editable
+    script.
+      ws = new WebSocket(`ws:\\${location.hostname}:${location.port}`);
+      ws.onmessage = function(event) {
+        console.log(event.data);
+        if (event.data == "reloadNow") {
+          ws.send("unsubscribeReloadNotifications");
+          location.reload(true);
+        }
+      }
+      ws.onclose = function(event) {
+          console.log("closed");
+          location.reload(true);
+      }
+      ws.onopen = function(event) {
+        console.log("opened");
+        ws.send("subscribeReloadNotifications");
+      }
