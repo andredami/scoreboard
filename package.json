@@ -15,7 +15,7 @@
     "morgan": "~1.9.1",
     "node-xlsx": "^0.15.0",
     "pug": "^2.0.4",
-    "sqlite3": "^4.1.1",
+    "sqlite3": "^4.2.0",
     "ws": "^7.2.1"
   },
   "devDependencies": {
